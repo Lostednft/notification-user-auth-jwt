@@ -1,11 +1,13 @@
 package com.Notification.services;
 
 import com.Notification.domain.Notification;
+import com.Notification.domain.User;
 import com.Notification.dtos.notification.RequestNotification;
 import com.Notification.repositories.NotificationRepository;
 import com.Notification.repositories.UserRepository;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -19,10 +21,10 @@ public class NotificationService {
         this.userRepository = userRepository;
     }
 
+    @Transactional
     public void registerNotification(RequestNotification requestNotification){
-
-        var userLocalSender = userRepository.findByLogin(requestNotification.loginSender());
-        var userLocalDestination = userRepository.findByLogin(requestNotification.loginDestination());
+        User userLocalSender = userRepository.findByLogin(requestNotification.loginSender());
+        User userLocalDestination = userRepository.findByLogin(requestNotification.loginDestination());
 
         if(userLocalSender == null)
             throw new BadCredentialsException("Login Sender is invalid");
@@ -33,13 +35,28 @@ public class NotificationService {
         var timerPlusSeconds = requestNotification.time();
 
         var notificationSave = new Notification();
+
         notificationSave.setDate(LocalDateTime.now().plusSeconds(timerPlusSeconds));
         notificationSave.setMessage(requestNotification.message());
-        notificationSave.setUserSender(userLocalSender);
-        notificationSave.setUserDestination(userLocalDestination);
-        notificationSave.setChannel(requestNotification.channel().toChannel());
-        notificationSave.setStatus(requestNotification.status().toStatus());
+        notificationSave.setUserSender(userLocalSender.getLogin());
+        notificationSave.setUserDestination(userLocalDestination.getLogin());
+        notificationSave.setChannel(requestNotification.channel().toChannel().getChannel());
+        notificationSave.setStatus(requestNotification.status().toStatus().getStatus());
 
         notificationRepository.save(notificationSave);
+    }
+
+
+    public Notification findNotificationById(Long idNotification) {
+        Notification localNotification = notificationRepository.findById(idNotification)
+                .orElseThrow(() -> new RuntimeException("There is no Notification with this ID."));
+        return localNotification;
+    }
+
+    @Transactional
+    public void deleteNotificationById(Long idNotification) {
+        var localNotification = notificationRepository.findById(idNotification)
+                .orElseThrow(() -> new RuntimeException(("Delete Failed! There is no Notification with this ID.")));
+        notificationRepository.delete(localNotification);
     }
 }

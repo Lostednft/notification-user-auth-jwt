@@ -52,7 +52,7 @@ public class AuthenticationService implements UserDetailsService {
 
         String passwordBcrypt = new BCryptPasswordEncoder().encode(data.password());
 
-        var userRegister = new User(data.login(), passwordBcrypt, data.role());
+        User userRegister = new User(data.login(), passwordBcrypt, data.role());
 
         return this.repository.save(userRegister);
     }
