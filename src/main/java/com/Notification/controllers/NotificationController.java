@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/notification")
-public class NotificationController {
+public class    NotificationController {
 
     private final NotificationService notificationService;
     public NotificationController(NotificationService notificationService) {

@@ -3,7 +3,9 @@ package com.Notification.dtos.notification;
 import com.Notification.domain.Channel;
 import com.Notification.domain.Status;
 
-public record RequestNotification(Long time,
+import java.time.LocalDateTime;
+
+public record RequestNotification(LocalDateTime dateTime,
                                   String message,
                                   String loginSender,
                                   String loginDestination,

@@ -28,11 +28,13 @@ public class Notification {
 
     private String userDestination;
 
-    private String status;
+    @ManyToOne(fetch = FetchType.EAGER)
+    private Status status;
 
-    private String channel;
+    @ManyToOne(fetch = FetchType.EAGER)
+    private Channel channel;
 
-    public Notification(LocalDateTime date, String message, String userSender, String userDestination, String status, String channel) {
+    public Notification(LocalDateTime date, String message, String userSender, String userDestination, Status status, Channel channel) {
         this.date = date;
         this.message = message;
         this.userSender = userSender;
