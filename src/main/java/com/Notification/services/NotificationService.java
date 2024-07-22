@@ -3,6 +3,8 @@ package com.Notification.services;
 import com.Notification.domain.Notification;
 import com.Notification.domain.Status;
 import com.Notification.domain.User;
+import com.Notification.dtos.notification.NotificationResponse;
+import com.Notification.dtos.notification.NotificationUserResponse;
 import com.Notification.dtos.notification.RequestNotification;
 import com.Notification.repositories.NotificationRepository;
 import com.Notification.repositories.UserRepository;
@@ -12,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,28 +33,33 @@ public class NotificationService {
 
         if(userLocalSender == null)
             throw new BadCredentialsException("Login Sender is invalid");
-
         if(userLocalDestination == null)
             throw new BadCredentialsException("Login Destination is invalid");
 
-
-        var notificationSave = new Notification();
-
-        notificationSave.setDate(requestNotification.dateTime());
-        notificationSave.setMessage(requestNotification.message());
-        notificationSave.setUserSender(userLocalSender.getLogin());
-        notificationSave.setUserDestination(userLocalDestination.getLogin());
-        notificationSave.setChannel(requestNotification.channel().toChannel());
-        notificationSave.setStatus(requestNotification.status().toStatus());
-
-        notificationRepository.save(notificationSave);
+        notificationRepository.save(new Notification(requestNotification, userLocalSender, userLocalDestination));
     }
 
-
-    public Notification findNotificationById(Long idNotification) {
+    @Transactional
+    public NotificationResponse findNotificationById(Long idNotification) {
         var localNotification = notificationRepository.findById(idNotification)
                 .orElseThrow(() -> new RuntimeException("There is no Notification with this ID."));
-        return localNotification;
+
+        var userSender = new NotificationUserResponse(
+                localNotification.getUserSender().getId(),
+                localNotification.getUserSender().getLogin());
+
+        var userDestination = new NotificationUserResponse(
+                localNotification.getUserDestination().getId(),
+                localNotification.getUserDestination().getLogin());
+
+        return new NotificationResponse(
+                localNotification.getId(),
+                localNotification.getMessage(),
+                localNotification.getDate(),
+                userSender,
+                userDestination,
+                localNotification.getStatus(),
+                localNotification.getChannel());
     }
 
     @Transactional
@@ -69,10 +75,10 @@ public class NotificationService {
         var notifications = notificationRepository.findByStatusIn(
                 List.of(Status.StatusLoad.PENDING.toStatus(), Status.StatusLoad.ERROR.toStatus()));
 
-            List<Notification> notificationsToUpdate = notifications.stream()
-                    .filter(not -> !not.getDate().isAfter(dateTime))
-                    .peek(not -> not.setStatus(Status.StatusLoad.SUCCESS.toStatus()))
-                    .collect(Collectors.toList());
+        List<Notification> notificationsToUpdate = notifications.stream()
+                .filter(not -> !not.getDate().isAfter(dateTime))
+                .peek(not -> not.setStatus(Status.StatusLoad.SUCCESS.toStatus()))
+                .collect(Collectors.toList());
 
         if (!notificationsToUpdate.isEmpty()) notificationRepository.saveAll(notificationsToUpdate);
     }

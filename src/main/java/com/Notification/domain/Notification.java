@@ -1,5 +1,6 @@
 package com.Notification.domain;
 
+import com.Notification.dtos.notification.RequestNotification;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,9 +25,11 @@ public class Notification {
 
     private LocalDateTime date;
 
-    private String userSender;
+    @ManyToOne(fetch = FetchType.EAGER)
+    private User userSender;
 
-    private String userDestination;
+    @ManyToOne(fetch = FetchType.EAGER)
+    private User userDestination;
 
     @ManyToOne(fetch = FetchType.EAGER)
     private Status status;
@@ -34,13 +37,22 @@ public class Notification {
     @ManyToOne(fetch = FetchType.EAGER)
     private Channel channel;
 
-    public Notification(LocalDateTime date, String message, String userSender, String userDestination, Status status, Channel channel) {
+    public Notification(LocalDateTime date, String message, User userSender, User userDestination, Status status, Channel channel) {
         this.date = date;
         this.message = message;
         this.userSender = userSender;
         this.userDestination = userDestination;
         this.status = status;
         this.channel = channel;
+    }
+
+    public Notification(RequestNotification requestNotification, User userSender, User userDestination){
+        this.date = requestNotification.dateTime();
+        this.message = requestNotification.message();
+        this.userSender = userSender;
+        this.userDestination = userDestination;
+        this.status = requestNotification.status().toStatus();
+        this.channel = requestNotification.channel().toChannel();
     }
 }
 

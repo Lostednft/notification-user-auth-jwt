@@ -31,7 +31,7 @@ public class SecurityConfigurations {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.POST, "/notification").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/notification/").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/notification/").permitAll()
                         .requestMatchers(HttpMethod.GET, "/notification/").hasRole("USER")
                         .requestMatchers(HttpMethod.POST, "/auth/register").hasRole("ADMIN")
                         .anyRequest().authenticated())
