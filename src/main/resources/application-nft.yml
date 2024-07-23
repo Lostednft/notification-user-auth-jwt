@@ -1,0 +1,23 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${PGHOST}:${PGPORT}/${PGDATABASE}
+    username: ${PGUSER}
+    password: ${PGPASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    driver:
+      class:
+        name: org.postgresql.Driver
+
+api:
+  security:
+    token:
+      secret: ${JWT_SECRET:my-secret-key}
+
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
