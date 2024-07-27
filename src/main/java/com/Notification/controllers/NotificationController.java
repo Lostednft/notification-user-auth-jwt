@@ -18,7 +18,7 @@ public class    NotificationController {
     @PostMapping
     public ResponseEntity register(@RequestBody @Valid RequestNotification notification){
         notificationService.registerNotification(notification);
-        return ResponseEntity.ok("Registered was success.");
+        return ResponseEntity.ok("Registration was a success");
     }
 
     @GetMapping("/{idNotification}")
@@ -26,9 +26,9 @@ public class    NotificationController {
         return ResponseEntity.ok(notificationService.findNotificationById(idNotification));
     }
 
-    @PostMapping("/{deleteId}")
+    @DeleteMapping("/{deleteId}")
     public ResponseEntity deleteNotification(@PathVariable @Valid Long deleteId){
         notificationService.deleteNotificationById(deleteId);
-        return ResponseEntity.ok("Notification deleted with success.");
+        return ResponseEntity.ok("Notification successfully deleted");
     }
 }
