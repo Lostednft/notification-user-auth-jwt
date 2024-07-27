@@ -20,7 +20,7 @@ public class NotificationScheduler {
         this.notificationService = notificationService;
     }
 
-    @Scheduled(fixedDelay = 5, timeUnit = TimeUnit.SECONDS)
+    @Scheduled(fixedDelay = 60, timeUnit = TimeUnit.SECONDS)
     private void doCheckStatus(){
 
         var dateTime = LocalDateTime.now();

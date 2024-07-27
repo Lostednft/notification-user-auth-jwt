@@ -29,9 +29,9 @@ public class SecurityConfigurations {
         return httpSecurity.csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(HttpMethod.POST, "/notification").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/notification").hasRole("USER")
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/notification/").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/notification/").hasRole("USER")
                         .requestMatchers(HttpMethod.GET, "/notification/").hasRole("USER")
                         .requestMatchers(HttpMethod.POST, "/auth/register").hasRole("ADMIN")
                         .anyRequest().authenticated())
