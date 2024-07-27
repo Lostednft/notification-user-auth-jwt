@@ -8,12 +8,17 @@ import com.Notification.repositories.UserRepository;
 import com.Notification.security.TokenService;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
 
 
 @Service
@@ -35,7 +40,9 @@ public class AuthenticationService implements UserDetailsService {
     }
 
     public LoginResponseDTO loginUser(AuthenticationDTO data){
-        if (repository.findByLogin(data.login()) == null) return null;
+        if(data.login() == null || data.password() == null) throw new NullPointerException("All fields must be filled in.");
+
+        if (loadUserByUsername(data.login()) == null) throw new AuthenticationServiceException("this login was not found.");
 
         var usernamePassword = new UsernamePasswordAuthenticationToken(data.login(),data.password());
         var auth = this.authenticationManager.authenticate(usernamePassword);
@@ -44,7 +51,6 @@ public class AuthenticationService implements UserDetailsService {
 
         return new LoginResponseDTO(token);
     }
-
 
     public User registerUser(RegisterDTO data)
     {

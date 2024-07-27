@@ -25,7 +25,6 @@ public class AuthenticationController {
     @PostMapping("/login")
     public ResponseEntity login(@RequestBody @Valid AuthenticationDTO data){
 
-        if (service.loadUserByUsername(data.login()) == null) return ResponseEntity.badRequest().build();
         return ResponseEntity.ok(service.loginUser(data));
     }
 
