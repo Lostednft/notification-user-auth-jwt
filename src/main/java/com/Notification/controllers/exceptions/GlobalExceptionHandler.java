@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -32,7 +33,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(NoSuchElementException.class)
-    private ResponseEntity handlerNotFound(NoSuchElementException noSuchException) {
+    public ResponseEntity handlerNotFound(NoSuchElementException noSuchException) {
         return new ResponseEntity(noSuchException.getMessage(), HttpStatus.NOT_FOUND);
     }
 

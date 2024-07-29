@@ -5,10 +5,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-
 import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
-
 
 @Component
 public class NotificationScheduler {
@@ -20,7 +18,7 @@ public class NotificationScheduler {
         this.notificationService = notificationService;
     }
 
-    @Scheduled(fixedDelay = 60, timeUnit = TimeUnit.SECONDS)
+    @Scheduled(fixedDelay = 5, timeUnit = TimeUnit.SECONDS)
     private void doCheckStatus(){
 
         var dateTime = LocalDateTime.now();

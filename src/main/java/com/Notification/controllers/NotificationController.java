@@ -16,7 +16,7 @@ public class    NotificationController {
     }
 
     @PostMapping
-    public ResponseEntity register(@RequestBody @Valid RequestNotification notification){
+    public ResponseEntity register(@RequestBody RequestNotification notification){
         notificationService.registerNotification(notification);
         return ResponseEntity.ok("Registration was a success");
     }
