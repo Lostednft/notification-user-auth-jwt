@@ -4,11 +4,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationServiceException;
-import org.springframework.security.authentication.InternalAuthenticationServiceException;
-import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.NoSuchElementException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -20,8 +21,25 @@ public class GlobalExceptionHandler {
         return new ResponseEntity(nullPointerException.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
-    @ExceptionHandler(AuthenticationServiceException.class)
-    public ResponseEntity loginDoesntExist(AuthenticationServiceException auth){
-        return new ResponseEntity(auth.getMessage(), HttpStatus.UNAUTHORIZED);
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity usernameInvalidException(UsernameNotFoundException message){
+        return new ResponseEntity(message.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity passwordInvalidException(BadCredentialsException message){
+        return new ResponseEntity(message.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(NoSuchElementException.class)
+    private ResponseEntity handlerNotFound(NoSuchElementException noSuchException) {
+        return new ResponseEntity(noSuchException.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(Throwable.class)
+    public ResponseEntity unexpectedException(Throwable throwable) {
+        String message = "something unexpected happened, see the logs";
+        logger.error(message, throwable);
+        return new ResponseEntity(message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

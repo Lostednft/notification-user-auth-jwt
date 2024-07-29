@@ -31,8 +31,6 @@ public class AuthenticationController {
     @PostMapping("/register")
     public ResponseEntity<User> register(@RequestBody @Valid RegisterDTO registerData){
 
-        if (service.loadUserByUsername(registerData.login()) != null) return ResponseEntity.badRequest().build();
-
         service.registerUser(registerData);
         return ResponseEntity.ok().build();
     }

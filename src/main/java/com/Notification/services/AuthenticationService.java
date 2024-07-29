@@ -7,19 +7,14 @@ import com.Notification.dtos.user.RegisterDTO;
 import com.Notification.repositories.UserRepository;
 import com.Notification.security.TokenService;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationServiceException;
-import org.springframework.security.authentication.InternalAuthenticationServiceException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.authentication.*;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-
+import java.util.NoSuchElementException;
 
 @Service
 public class AuthenticationService implements UserDetailsService {
@@ -28,7 +23,9 @@ public class AuthenticationService implements UserDetailsService {
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
 
-    public AuthenticationService(UserRepository repository, @Lazy AuthenticationManager authenticationManager, TokenService tokenService) {
+    public AuthenticationService(UserRepository repository,
+                                 @Lazy AuthenticationManager authenticationManager,
+                                 TokenService tokenService) {
         this.repository = repository;
         this.authenticationManager = authenticationManager;
         this.tokenService = tokenService;
@@ -40,26 +37,40 @@ public class AuthenticationService implements UserDetailsService {
     }
 
     public LoginResponseDTO loginUser(AuthenticationDTO data){
-        if(data.login() == null || data.password() == null) throw new NullPointerException("All fields must be filled in.");
 
-        if (loadUserByUsername(data.login()) == null) throw new AuthenticationServiceException("this login was not found.");
-
-        var usernamePassword = new UsernamePasswordAuthenticationToken(data.login(),data.password());
-        var auth = this.authenticationManager.authenticate(usernamePassword);
-
-        var token = tokenService.generate((User) auth.getPrincipal());
-
-        return new LoginResponseDTO(token);
+        loginPasswordException(data);
+        try{
+            var usernamePassword = new UsernamePasswordAuthenticationToken(data.login(),data.password());
+            var auth = this.authenticationManager.authenticate(usernamePassword);
+            var token = tokenService.generate((User) auth.getPrincipal());
+            return new LoginResponseDTO(token);
+        }catch (BadCredentialsException e){
+            throw new BadCredentialsException("password invalid.");
+        }
     }
 
     public User registerUser(RegisterDTO data)
     {
-        if (repository.findByLogin(data.login()) != null) return null;
-
+        loginPasswordException(data);
         String passwordBcrypt = new BCryptPasswordEncoder().encode(data.password());
-
         User userRegister = new User(data.login(), passwordBcrypt, data.role());
-
         return this.repository.save(userRegister);
     }
+
+    private void loginPasswordException(AuthenticationDTO data){
+        if(data.login() == null || data.password() == null)
+            throw new NullPointerException("All fields must be filled in.");
+
+        if (loadUserByUsername(data.login()) == null)
+            throw new UsernameNotFoundException("login invalid.");
+
+    } private void loginPasswordException(RegisterDTO data){
+
+        if(data.login() == null || data.password() == null || data.role() == null)
+            throw new NullPointerException("All fields must be filled in.");
+
+        if (loadUserByUsername(data.login()) != null)
+            throw new UsernameNotFoundException("This login is unavailable.");
+    }
+
 }
