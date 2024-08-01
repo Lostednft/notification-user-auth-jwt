@@ -37,6 +37,12 @@ public class GlobalExceptionHandler {
         return new ResponseEntity(noSuchException.getMessage(), HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity dateTimeException(){
+        String message = "fill all fields correctly.";
+        return new ResponseEntity(message, HttpStatus.UNAUTHORIZED);
+    }
+
     @ExceptionHandler(Throwable.class)
     public ResponseEntity unexpectedException(Throwable throwable) {
         String message = "something unexpected happened, see the logs";

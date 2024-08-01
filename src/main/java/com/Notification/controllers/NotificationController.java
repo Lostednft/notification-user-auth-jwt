@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/notification")
-public class    NotificationController {
+public class NotificationController {
 
     private final NotificationService notificationService;
     public NotificationController(NotificationService notificationService) {
@@ -16,7 +16,7 @@ public class    NotificationController {
     }
 
     @PostMapping
-    public ResponseEntity register(@RequestBody RequestNotification notification){
+    public ResponseEntity register(@RequestBody @Valid RequestNotification notification){
         notificationService.registerNotification(notification);
         return ResponseEntity.ok("Registration was a success");
     }

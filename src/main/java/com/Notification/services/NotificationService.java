@@ -13,8 +13,10 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DateTimeException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 
@@ -38,16 +40,25 @@ public class NotificationService {
 
         if(userLocalSender.getLogin().isEmpty())
             throw new BadCredentialsException("Login Sender is invalid");
+
         if(userLocalDestination.getLogin().isEmpty())
             throw new BadCredentialsException("Login Destination is invalid");
 
-        notificationRepository.save(new Notification(requestNotification, userLocalSender, userLocalDestination));
+        var notificationToSave = new Notification(
+                requestNotification,
+                userLocalSender,
+                userLocalDestination);
+
+        if(notificationToSave.getDate().isBefore(LocalDateTime.now()))
+            notificationToSave.setStatus(Status.StatusLoad.SUCCESS.toStatus());
+
+        notificationRepository.save(notificationToSave);
     }
 
     @Transactional
     public NotificationResponse findNotificationById(Long idNotification) {
         var localNotification = notificationRepository.findById(idNotification)
-                .orElseThrow(() -> new RuntimeException("There is no Notification with this ID."));
+                .orElseThrow(() -> new NoSuchElementException("There is no Notification with this ID."));
 
         var userSender = new NotificationUserResponse(
                 localNotification.getUserSender().getId(),
@@ -70,7 +81,7 @@ public class NotificationService {
     @Transactional
     public void deleteNotificationById(Long idNotification) {
         var localNotification = notificationRepository.findById(idNotification)
-                .orElseThrow(() -> new RuntimeException("Delete Failed! There is no Notification with this ID."));
+                .orElseThrow(() -> new NoSuchElementException("Delete Failed! There is no Notification with this ID."));
         notificationRepository.delete(localNotification);
     }
 
@@ -80,8 +91,8 @@ public class NotificationService {
                 List.of(Status.StatusLoad.PENDING.toStatus(), Status.StatusLoad.ERROR.toStatus()));
 
         List<Notification> notificationsToUpdate = notifications.stream()
-                .filter(not -> !not.getDate().isAfter(dateTime))
-                .peek(not -> not.setStatus(Status.StatusLoad.SUCCESS.toStatus()))
+                .filter(notification -> !notification.getDate().isAfter(dateTime))
+                .peek(notification -> notification.setStatus(Status.StatusLoad.SUCCESS.toStatus()))
                 .collect(Collectors.toList());
 
         if (!notificationsToUpdate.isEmpty())

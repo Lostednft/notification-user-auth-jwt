@@ -58,7 +58,7 @@ public class AuthenticationService implements UserDetailsService {
     }
 
     private void loginPasswordException(AuthenticationDTO data){
-        if(data.login() == null || data.password() == null)
+        if(data.login().isEmpty() || data.password().isEmpty())
             throw new NullPointerException("All fields must be filled in.");
 
         if (loadUserByUsername(data.login()) == null)
@@ -66,7 +66,7 @@ public class AuthenticationService implements UserDetailsService {
 
     } private void loginPasswordException(RegisterDTO data){
 
-        if(data.login() == null || data.password() == null || data.role() == null)
+        if(data.login().isEmpty() || data.password().isEmpty()|| data.role().getRole().isEmpty())
             throw new NullPointerException("All fields must be filled in.");
 
         if (loadUserByUsername(data.login()) != null)

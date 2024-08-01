@@ -10,8 +10,8 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "tb_channel")
-@Getter
 @Setter
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Channel {
